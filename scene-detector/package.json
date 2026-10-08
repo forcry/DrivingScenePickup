@@ -1,0 +1,1 @@
+{"name":"scene-detector","version":"3.0.0","type":"module","scripts":{"fetch":"node tools/fetch.mjs","test":"node --test tests/core.test.js","audit":"node tools/audit.mjs","check":"node tools/check.mjs","verify":"node tools/audit.mjs --files","dev":"npx --yes http-server . -p 8080 -c-1"}}

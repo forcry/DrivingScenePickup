@@ -1,0 +1,4 @@
+export const DEFAULTS={conf:0.4,interval:90,maxMiss:6,ap:0.18,apExit:0.06,hold:3,size:'balanced',boxes:true,trails:true,debug:false,cats:{CAR:1,TRUCK:1,BUS:1,MOTORCYCLE:1,BICYCLE:1,PERSON:0,OTHER:0}};
+export const SPEC=[['conf','Detection confidence',0.2,0.8,0.05],['interval','Detector interval (ms)',40,300,10],['maxMiss','Track expiry (missed updates)',2,15,1],['ap','Approaching threshold (ln area/s)',0.08,0.5,0.02],['apExit','Release threshold',0.02,0.2,0.02],['hold','Hysteresis (updates)',1,6,1]];
+export function loadSettings(store,key='cs3.settings'){try{const s=JSON.parse(store.getItem(key)||'{}');return{...DEFAULTS,...s,cats:{...DEFAULTS.cats,...(s.cats||{})}}}catch{return{...DEFAULTS,cats:{...DEFAULTS.cats}}}}
+export const saveSettings=(store,s,key='cs3.settings')=>{try{store.setItem(key,JSON.stringify(s))}catch{}};

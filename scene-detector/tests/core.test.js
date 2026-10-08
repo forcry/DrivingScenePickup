@@ -1,0 +1,20 @@
+import test from'node:test';import assert from'node:assert/strict';
+import{Tracker,clean}from'../js/tracker.js';import{mapPoint,activity,summary,attention,counts}from'../js/scene.js';
+import{EventLog}from'../js/events.js';import{loadSettings,saveSettings}from'../js/settings.js';
+const W=1000,H=600,mem=()=>{const m={};return{getItem:k=>m[k]??null,setItem:(k,v)=>{m[k]=v}}};
+const det=(s=1,x=0)=>[{cls:'car',conf:0.9,box:{x:420+x-50*(s-1),y:250-30*(s-1),w:100*s,h:60*s}}];
+function run(tr,n,sf,t0=0){let r;for(let i=0;i<n;i++)r=tr.update(det(sf(i)),t0+i*0.1,W,H);return r}
+test('persistence keeps id',()=>{const t=new Tracker();run(t,10,()=>1);assert.equal(t.tracks.length,1);assert.equal(t.tracks[0].id,1)});
+test('approaching after sustained growth',()=>{const t=new Tracker();run(t,10,()=>1);run(t,15,i=>Math.pow(1.04,i+1),1);assert.equal(t.tracks[0].state,'APPROACHING')});
+test('approaching hysteresis ignores single bump',()=>{const t=new Tracker();run(t,15,()=>1);t.update(det(1.3),1.5,W,H);run(t,5,()=>1,1.6);assert.equal(t.tracks[0].state,'STABLE')});
+test('moving away',()=>{const t=new Tracker();run(t,10,()=>1);run(t,15,i=>Math.pow(0.96,i+1),1);assert.equal(t.tracks[0].state,'MOVING AWAY')});
+test('image-space velocity',()=>{const t=new Tracker();run(t,15,i=>1);const r=run(t,10,()=>1,0);assert.ok(Math.abs(r.vis[0].vx)<0.05);const u=new Tracker();for(let i=0;i<15;i++)u.update(det(1,i*10),i*0.1,W,H);assert.ok(u.tracks[0].vx>0.05)});
+test('entering at edge then exiting & expiry',()=>{const t=new Tracker();const d=[{cls:'car',conf:.9,box:{x:0,y:200,w:80,h:50}}];let r=t.update(d,0,W,H);assert.equal(r.born[0].state,'ENTERING');let ex=[];for(let i=1;i<=8;i++)ex=ex.concat(t.update([],i*0.1,W,H).exited);assert.equal(ex.length,1);assert.equal(ex[0].state,'EXITED');assert.equal(t.tracks.length,0)});
+test('malformed, missing conf, zero size, clipped',()=>{assert.deepEqual(clean(null,W,H),[]);assert.equal(clean([null,{},{box:{x:NaN,y:0,w:1,h:1}},{cls:'car',box:{x:5,y:5,w:0,h:10}}],W,H).length,0);const c=clean([{cls:'car',box:{x:-20,y:10,w:100,h:2000}}],W,H);assert.equal(c[0].conf,0);assert.deepEqual(c[0].box,{x:0,y:10,w:80,h:590})});
+test('map coords',()=>{const a=mapPoint({cx:0,area:100},W,H),b=mapPoint({cx:W,area:W*H},W,H);assert.equal(a.x,0);assert.equal(b.x,1);assert.ok(b.y>a.y&&b.y<=0.951)});
+test('events cooldown & persistence',()=>{const s=mem(),l=new EventLog(s);assert.ok(l.add('APPROACHING',1,0,'a'));assert.equal(l.add('APPROACHING',1,2,'a'),null);assert.ok(l.add('APPROACHING',1,5,'a'));assert.equal(new EventLog(s).list.length,2);const c=new EventLog(mem(),3);for(let i=0;i<6;i++)c.add('NEW',i,0,'x');assert.equal(c.list.length,3)});
+test('summary has no safety claims',()=>{const v=[{state:'APPROACHING',vx:0,vy:0},{state:'STABLE',vx:0,vy:0}];for(const s of[summary(v),summary([]),summary(v.slice(1),3)])assert.doesNotMatch(s,/collision|danger|safe|meter|distance|km|mph/i)});
+test('activity score',()=>{assert.deepEqual(activity([],0,0),{score:0,level:'LOW'});assert.equal(activity(Array(12).fill({state:'APPROACHING',vx:.2,vy:0}),3,10).level,'HIGH')});
+test('attention selection',()=>{assert.equal(attention([],10).title,'NO SIGNIFICANT CHANGE');const a=attention([{type:'APPROACHING',id:3,t:8}],10);assert.equal(a.title,'VEHICLE 03');assert.equal(attention([{type:'APPROACHING',id:3,t:0}],20).title,'NO SIGNIFICANT CHANGE')});
+test('settings persistence',()=>{const s=mem(),a=loadSettings(s);a.conf=0.6;a.cats.PERSON=1;saveSettings(s,a);const b=loadSettings(s);assert.equal(b.conf,0.6);assert.equal(b.cats.PERSON,1);assert.equal(b.cats.CAR,1)});
+test('counts regions',()=>{const c=counts([{region:'LEFT',state:'STABLE'},{region:'CENTER',state:'APPROACHING'}]);assert.equal(c.total,2);assert.equal(c.approaching,1)});

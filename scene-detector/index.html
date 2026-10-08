@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#06090f"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="style.css"><title>CAR SCOUT</title></head>
+<body data-m="drive" data-size="balanced">
+<div id="onb"><div><h1>CAR SCOUT</h1><h2>VEHICLE INTELLIGENCE</h2><p class="q">Your camera becomes a live computer-vision dashboard.</p>
+<dl><dt>CAMERA</dt><dd>Tracks visible objects.</dd><dt>SCENE MAP</dt><dd>Shows approximate image-space positions.</dd><dt>MOTION</dt><dd>Highlights changes in tracked objects.</dd><dt>LOCAL</dt><dd>Processing happens on this device.</dd></dl>
+<button id="go" class="pri">START SCANNING</button><p id="err"></p></div></div>
+<header id="top"><b>CAR SCOUT</b><span id="live">● LIVE</span><span>DET <b id="tdet">–</b> FPS</span><span id="tmodel">MODEL LOADING</span><span id="rec"></span><span class="lo">LOCAL ONLY</span></header>
+<nav id="tabs"><button data-m="drive">DRIVE</button><button data-m="analysis">ANALYSIS</button><button data-m="calib">CALIB</button></nav>
+<main>
+<section id="cam" class="p"><video id="vid" playsinline muted></video><canvas id="cv"></canvas>
+<div class="cbar"><button id="minbtn">MINIMIZE</button><button id="snapbtn">SNAPSHOT</button><button id="recbtn">REC</button><span id="camsz"><button data-s="compact">COMPACT</button><button data-s="balanced">BALANCED</button><button data-s="large">LARGE</button></span></div></section>
+<section id="stats" class="p"><div><b id="c-t">0</b><i>VEHICLES</i></div><div><b id="c-l">0</b><i>LEFT</i></div><div><b id="c-c">0</b><i>CENTER</i></div><div><b id="c-r">0</b><i>RIGHT</i></div><div class="am"><b id="c-a">0</b><i>APPROACHING</i></div></section>
+<section id="map" class="p"><h3>SCENE MAP <small>camera-derived • approximate</small></h3><div id="mapel"><span class="lb l">LEFT</span><span class="lb c">CENTER</span><span class="lb r">RIGHT</span></div>
+<div class="a" id="rp"><button id="rpbtn">REPLAY</button><input id="rpsl" type="range" min="0" max="0" value="0"><span id="rptx"></span></div></section>
+<section id="att" class="p"><h3>ATTENTION</h3><div id="atx">NO SIGNIFICANT CHANGE</div></section>
+<section id="chg" class="p"><h3>WHAT CHANGED</h3><ul id="chl"></ul></section>
+<section id="act" class="p"><h3>SCENE ACTIVITY</h3><div class="bar"><i id="actbar"></i></div><b id="actlbl">LOW</b><p id="sumtxt"></p></section>
+<section id="sel" class="p"><h3>SELECTED</h3><div id="seltx">Tap a dot or box.</div></section>
+<section id="ev" class="p"><h3>EVENTS <button id="evbtn">ALL</button></h3><ul id="evl"></ul></section>
+<section id="ses" class="a"><h3>SESSION <small>tracking statistics, not unique real vehicles</small></h3><div id="sestx"></div></section>
+<section id="perf" class="a"><h3>PERFORMANCE</h3><div id="perftx"></div></section>
+<section id="calib" class="c"><h3>CALIBRATION</h3><div id="sliders"></div><div id="cats"></div><label><input type="checkbox" id="o-boxes"> Boxes</label> <label><input type="checkbox" id="o-trails"> Trails</label> <label><input type="checkbox" id="o-debug"> Debug (confidence)</label>
+<p class="dis">Image-space estimates only. Not a safety system. No distance, speed or collision measurement.</p></section>
+</main>
+<div id="evpanel"><button id="evclose">CLOSE</button><ul id="evall"></ul></div>
+<script type="module" src="js/main.js"></script></body></html>
