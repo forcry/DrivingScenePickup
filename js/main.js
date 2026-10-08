@@ -39,6 +39,6 @@ await new Promise(resolve=>{
 await vid.play();
 rec=new Recorder(s);
 const tick=n=>{perf.tick('cam',performance.now());vid.requestVideoFrameCallback(tick)};if(vid.requestVideoFrameCallback)vid.requestVideoFrameCallback(tick);
-$('onb').classList.add('off');await det.init();perf.backend=det.backend;$('tmodel').textContent='MODEL READY';storageLeft().then(x=>{stats.st=x});loop()}catch(e){$('onb').classList.remove('off');$('err').textContent='Could not start: '+e.message;$('tmodel').textContent='MODEL ERROR'}};
+$('onb').classList.add('off');await det.init();perf.backend=det.backend;$('tmodel').textContent='MODEL READY';storageLeft().then(x=>{stats.st=x});loop()}catch(e){$('onb').classList.remove('off');$('err').textContent='Could not start: '+(e?.stack||e?.message||String(e));$('tmodel').textContent='MODEL ERROR'}};
 addEventListener('pagehide',()=>rp.persist());
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
