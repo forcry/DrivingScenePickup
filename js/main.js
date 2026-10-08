@@ -31,7 +31,13 @@ const es=log.diff(r.vis,r.born,r.exited,t);perf.sess.tracks+=r.born.length;perf.
 if(r.exited.some(x=>x.id===sel))hist=r.exited.find(x=>x.id===sel),sel=null;last=r;rp.push(t,Date.now(),r.vis.map(x=>({id:x.id,...mapPoint(x,W,Hh),state:x.state})));
 $('tdet').textContent=(perf.fps('det')||0).toFixed(1);if(rec?.active)$('rec').textContent='REC ● '+rec.elapsed();perf.sample('proc',performance.now()-T0);render()}
 requestAnimationFrame(loop)}
-$('go').onclick=async()=>{$('err').textContent='';try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false});vid.srcObject=s;await vid.play();rec=new Recorder(s);
+$('go').onclick=async()=>{$('err').textContent='';try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false});vid.srcObject=s;
+await new Promise(resolve=>{
+  if(vid.readyState>=2) resolve();
+  else vid.addEventListener('loadedmetadata',resolve,{once:true});
+});
+await vid.play();
+rec=new Recorder(s);
 const tick=n=>{perf.tick('cam',performance.now());vid.requestVideoFrameCallback(tick)};if(vid.requestVideoFrameCallback)vid.requestVideoFrameCallback(tick);
 $('onb').classList.add('off');await det.init();perf.backend=det.backend;$('tmodel').textContent='MODEL READY';storageLeft().then(x=>{stats.st=x});loop()}catch(e){$('onb').classList.remove('off');$('err').textContent='Could not start: '+e.message;$('tmodel').textContent='MODEL ERROR'}};
 addEventListener('pagehide',()=>rp.persist());
